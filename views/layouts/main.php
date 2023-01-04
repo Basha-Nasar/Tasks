@@ -20,6 +20,9 @@ $this->registerMetaTag(['name' => 'keywords', 'content' => $this->params['meta_k
 $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii::getAlias('@web/favicon.ico')]);
 
 ?>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.js" integrity="sha512-nO7wgHUoWPYGCNriyGzcFwPSF+bPDOR+NvtOYy2wMcWkrnCNPKBcFEkU80XIN14UVja0Gdnff9EmydyLlOL7mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js" integrity="sha512-STof4xm1wgkfm7heWqFJVn58Hm3EtS31XFaagaa8VMReCXAkQnJZ+jEy8PCC/iT18dFy95WcExNHFTqLyp72eQ=="
             crossOrigin="anonymous" referrerpolicy="no-referrer"></script>
 <?php $this->beginPage() ?>
@@ -37,14 +40,20 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
     NavBar::begin([
         'brandLabel' => Yii::$app->name,
         'brandUrl' => Yii::$app->homeUrl,
+        'options' => ['class' => 'navbar-expand-md navbar-dark bg-secondary fixed-top'],
         'options' => ['class' => 'navbar-expand-md navbar-dark bg-secondary fixed-top']
     ]);
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav'],
         'items' => [
-            ['label' => 'Home', 'url' => ['/site/index']],
-            // ['label' => 'About', 'url' => ['/site/about']],
-            // ['label' => 'Contact', 'url' => ['/site/contact']],
+            ['label' => 'Admin', 'url' => ['/site/index']],
+            ['label' => 'Php Developer', 'url' => ['/php-developer/index']],
+            ['label' => 'Certifications', 'url' => ['/certifications/index']],
+//            ['label' => 'Purchase Order', 'url' => ['/po/index']],
+            ['label' => 'Country', 'url' => ['/country/index']],
+            ['label' => 'Angular', 'url' => ['/angular-developer/index']],
+            ['label' => 'Products', 'url' => ['/products/index']],
+            ['label' => 'Android', 'url' => ['/android-developer/index']],
             Yii::$app->user->isGuest
                 ? ['label' => 'Login', 'url' => ['/site/login']]
                 : '<li class="nav-item">'

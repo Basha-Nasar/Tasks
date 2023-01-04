@@ -24,24 +24,23 @@ class Admin extends \yii\db\ActiveRecord
      */
     public $file;
     public $products;
-    public $name = 'aditya';
+//    public $name;
+    public $username;
     public static function tableName()
     {
         return 'admin';
     }
-
     /**
      * {@inheritdoc}
      */
     public function rules()
     {
         return [
-            [['name', 'email', 'password', 'gender'], 'required'],
+            [['name','email', 'password', 'gender'], 'required'],
             [['gender','products'], 'string'],
-            [['email'], 'unique'],
+            ['email', 'unique', 'targetClass' => '\app\models\User', 'message' => 'This email address has already been taken.'],
             [['file'], 'file'],
-//            [['order_item'], 'safe'],
-            [['is_active', 'is_deleted'], 'integer'],
+            [['is_active'], 'integer'],
             [['name', 'email','logo'], 'string', 'max' => 100],
             [['password'], 'string', 'max' => 300],
         ];
@@ -59,9 +58,7 @@ class Admin extends \yii\db\ActiveRecord
             'password' => 'Password',
             'gender' => 'Gender',
             'products' => 'Products',
-            // 'department' => 'department',
             'is_active' => 'Is Active',
-            'is_deleted' => 'Is Deleted',
             'file' => 'logo',
         ];
     }

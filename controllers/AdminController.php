@@ -15,7 +15,7 @@ use app\components\AccessRule;
 use app\components\UserIdentity;
 use yii\web\UploadedFile;
 use app\models\Pictures;
-use yii\helpers\ArrayHelper;
+//use yii\helpers\ArrayHelper;
 use Yii;
 
 class AdminController extends Controller
@@ -44,18 +44,6 @@ class AdminController extends Controller
                 ],
             ],
         ];
-        // return array_merge(
-        //     parent::behaviors(),
-        //     [
-        //         'verbs' => [
-        //             'class' => VerbFilter::className(),
-        //             'actions' => [
-        //                 'delete' => ['POST'],
-        //             ],
-        //         ],
-        //     ]
-        // );
-
     }
 
     /**
@@ -67,7 +55,11 @@ class AdminController extends Controller
     {
         // $this->layout = false;
         $searchModel = new AdminSearch();
+//        print_r($this->request->queryParams);exit;
         $dataProvider = $searchModel->search($this->request->queryParams);
+
+        // build a DB query to get all articles with status = 1
+        $query = Admin::find()->where(['is_active' => 1]);
         // $json = \Yii::$app->session['_LemonPerfectUserPermissibleItem'];
         // $perm = json_decode($j   son, true);
 
@@ -92,6 +84,7 @@ class AdminController extends Controller
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
+//            'models' => $models,
             'models' => $models,
             'pages' => $pages,
         ]);
@@ -115,51 +108,7 @@ class AdminController extends Controller
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return string|\yii\web\Response
      */
-    // public function actionCreate()
-    // {
-    //     $model = new Admin();
 
-    //     if ($this->request->isPost) {
-    //         // echo print_r($this->request->post()['Admin']['password']);exit;
-
-    //         if ($model->load($this->request->post())) {
-    //             // $model->password = Security::generatePasswordHash($this->password_field);
-    //             $model->password = \Yii::$app->security->generatePasswordHash($this->request->post()['Admin']['password']);
-
-    //                 if($model->save()){
-    //                     return $this->redirect(['view', 'id' => $model->id]);
-
-    //                 }
-
-    //         }
-    //     } else {
-    //         $model->loadDefaultValues();
-    //     }
-
-    //     return $this->render('create', [
-    //         'model' => $model,
-    //     ]);
-    // }
-
-    // /**
-    //  * Updates an existing Admin model.
-    //  * If update is successful, the browser will be redirected to the 'view' page.
-    //  * @param int $id ID
-    //  * @return string|\yii\web\Response
-    //  * @throws NotFoundHttpException if the model cannot be found
-    //  */
-    // public function actionUpdate($id)
-    // {
-    //     $model = $this->findModel($id);
-
-    //     if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
-    //         return $this->redirect(['view', 'id' => $model->id]);
-    //     }
-
-    //     return $this->render('update', [
-    //         'model' => $model,
-    //     ]);
-    // }
     public function actionCreate()
     {
         $model = new Admin();
@@ -175,6 +124,7 @@ class AdminController extends Controller
             $row['items'] = $this->getModuleItem($row['auth_module_id']);
             array_push($result, $row);
         }
+        //echo phpinfo();
 //echo phpinfo();
         if ($this->request->isPost) {
             if ($model->load($this->request->post())) {
@@ -212,28 +162,31 @@ class AdminController extends Controller
                 $model->password = Yii::$app->security->generatePasswordHash($password);
                 $model->is_active = 1;
 
-                if ($model->save(false)) {
-                    if (!empty($request['item_list'])) {
-                        foreach ($request['item_list'] as $item) {
-                            $assignment = new \app\models\AuthAssignment();
-                            $assignment->auth_item_id = $item;
-                            $assignment->user_id = $model->id;
-                            $assignment->user_type = 'A';
-                            $assignment->created_at = date('Y-m-d H:i:s');
+                if ($model->save()) {
+                    if ($model->save(false)) {
+                        if (!empty($request['item_list'])) {
+                            foreach ($request['item_list'] as $item) {
+                                $assignment = new \app\models\AuthAssignment();
+                                $assignment->auth_item_id = $item;
+                                $assignment->user_id = $model->id;
+                                $assignment->user_type = 'A';
+                                $assignment->created_at = date('Y-m-d H:i:s');
 
-                            if (!$assignment->save()) {
-                                die(json_encode($assignment->errors));
+                                if (!$assignment->save()) {
+                                    die(json_encode($assignment->errors));
+                                }
                             }
                         }
+
+                        return $this->redirect(['index', 'id' => $model->id]);
                     }
-
-                    return $this->redirect(['index', 'id' => $model->id]);
                 }
+            } else {
+                $model->loadDefaultValues();
             }
-        } else {
-            $model->loadDefaultValues();
-        }
 
+
+        }
         return $this->render('create', [
             'model' => $model,
             'result' => $result,
@@ -241,84 +194,6 @@ class AdminController extends Controller
         ]);
     }
 
-    // THE Dependent dropdown List
-//    public function actionSubcat()
-//    {
-//        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-//        $out = [];
-//        if (isset($_POST['depdrop_parents'])) {
-//            $parents = $_POST['depdrop_parents'];
-//            if ($parents != null) {
-//                $cat_id = $parents[0];
-//                $out = self::getSubCatList($cat_id);
-//                // the getSubCatList function will query the database based on the
-//                // cat_id and return an array like below:
-//                // [
-//                //    ['id'=>'<sub-cat-id-1>', 'name'=>'<sub-cat-name1>'],
-//                //    ['id'=>'<sub-cat_id_2>', 'name'=>'<sub-cat-name2>']
-//                // ]
-//                return ['output' => $out, 'selected' => ''];
-//            }
-//        }
-//        return ['output' => '', 'selected' => ''];
-//    }
-//
-////    public function actionProd()
-////    {
-////        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-////        $out = [];
-////        if (isset($_POST['depdrop_parents'])) {
-////            $ids = $_POST['depdrop_parents'];
-////            $cat_id = empty($ids[0]) ? null : $ids[0];
-////            $subcat_id = empty($ids[1]) ? null : $ids[1];
-////            if ($cat_id != null) {
-////                $data = self::getProdList($cat_id, $subcat_id);
-////                /**
-////                 * the getProdList function will query the database based on the
-////                 * cat_id and sub_cat_id and return an array like below:
-////                 *  [
-////                 *      'out'=>[
-////                 *          ['id'=>'<prod-id-1>', 'name'=>'<prod-name1>'],
-////                 *          ['id'=>'<prod_id_2>', 'name'=>'<prod-name2>']
-////                 *       ],
-////                 *       'selected'=>'<prod-id-1>'
-////                 *  ]
-////                 */
-////
-////                return ['output' => $data['out'], 'selected' => $data['selected']];
-////            }
-////        }
-////        return ['output' => '', 'selected' => ''];
-////    }
-
-//    public function actionMultiple(){
-//        $upload = new Pictures();
-//        $products = Admin::find()->where(['is_active'=>1])->all();
-//
-//        if($upload->load(yii::$app->request->post())){
-//            $upload->image = UploadedFile::getInstance($upload,'image');
-//
-//            if($upload->load(yii::app->request->post())){
-//                if($upload->image && $upload->validate()){
-//                    if(!file_exits((Url::to('@webfront/uploads/')))){
-//                        mkdir(Url::to('@webfront/uploads/'),0777,true);
-//                    }
-//                    $path = Url::to('@webfront/uploads/');
-//                    foreach($upload->image as $images){
-//                        $model = new Pictures();
-//                        $model->image = time().rand(100,999).'.'.$image->extension;
-//                        if($model->save()){
-//                            $image->saveAs($path.$model->image);
-//                        }
-//                    }
-//                    return $this->redirect(['index']);
-//                }
-//            }
-//        }
-//
-//        return $this->render('multiple',['upload'=>$upload, 'admin'=>ArrayHelper::map($products,'id','name')]);
-//    }
-//
     /**
      * Updates an existing Admin model.
      * If update is successful, the browser will be redirected to the 'view' page.
@@ -386,7 +261,7 @@ class AdminController extends Controller
         if ($this->request->isPost && $model->load($this->request->post())) {
             $request = Yii::$app->request->bodyParams;
             
-            if($model->save(false)){
+            if($model->save()){
                 if (!empty($request['item_list'])) {
                     \app\models\AuthAssignment::deleteAll('user_id = :user_id', [':user_id' => $model->id]);
                     foreach ($request['item_list'] as $item) {
@@ -423,7 +298,6 @@ class AdminController extends Controller
     public function actionDelete($id)
     {
         $this->findModel($id)->delete();
-
         return $this->redirect(['index']);
     }
 
